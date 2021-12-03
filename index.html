@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>Display a map</title>
+    <title>Volcanoes & Populated Places</title>
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
     <script src="https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.js"></script>
     <link href="https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.css" rel="stylesheet" />
@@ -110,6 +110,54 @@
             });
 
 
+        });
+
+        map.on('load', function () {
+            map.addSource('volcano-data', {
+                type: 'vector',
+                url: 'mapbox://sjtamme.ckwqp3igd0npk27mj6gcr6o3z-9rdie'
+            });
+
+            map.addLayer({
+                'id': 'volcanoes', // provide an id for later reference
+                'type': 'circle',
+                'source': 'volcano-data', // refers to the source name we entered above
+                'source-layer': 'volcanoes', // refers to the name of the tileset hosted on Mapbox Studio
+                'layout': {},
+                'paint': {
+                    "circle-color": "#FFA500",
+                    "circle-radius": 3
+                }
+            });
+
+            const volcanopopup = new mapboxgl.Popup({
+                closeButton: false,
+                closeOnClick: false
+            });
+
+            map.on('mouseenter', 'volcanoes', function (e) {
+
+                const features = map.queryRenderedFeatures(e.point);
+
+                // Change the cursor style as a UI affordance.
+                map.getCanvas().style.cursor = 'pointer';
+
+                // Populate the popup and set its coordinates
+                // based on the feature found.
+
+                const coordinates = e.features[0].geometry.coordinates;
+                const name = e.features[0].properties.V_Name;
+
+                volcanopopup
+                    .setLngLat(coordinates)
+                    .setHTML(name + ' Volcano')
+                    .addTo(map);
+            });
+
+            map.on('mouseleave', 'volcanoes', function () {
+                map.getCanvas().style.cursor = '';
+                volcanopopup.remove();
+            });
         });
     </script>
 
